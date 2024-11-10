@@ -1,0 +1,11 @@
+<html>
+    <head>
+      <meta charset="UTF-8">
+      <title>{{ collection_name }}</title>
+      <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,minimum-scale=1.0,user-scalable=no">
+    </head>
+      <body>
+        <bg>标题: {{ collection_name|safe }}</bg>
+        {{ html_item|safe }}
+      </body>
+</html>
