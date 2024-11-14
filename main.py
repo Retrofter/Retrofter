@@ -1,4 +1,4 @@
-from flask import Flask, request, render_template
+from flask import Flask, request, render_template, abort
 from waitress import serve
 from lib import get
 import configparser
@@ -9,6 +9,8 @@ Retrofter = Flask(__name__)
 def post():  
     blog_id = request.args.get('blog_id', '836827109')
     post_id = request.args.get('post_id', '7733666170')
+    if blog_id == '' or post_id == '':
+         abort(500, 'blog_id 或 post_id 未填写')
     posts = get.get_post(blog_id, post_id)['posts']
     for i in posts:
          title = i['post']['title']  
@@ -19,6 +21,8 @@ def post():
 def collection():  
     collection_id = request.args.get('collection_id', '19697033')
     limit_once = request.args.get('limit_once', '10')
+    if collection_id == '':
+         abort(500, 'collection_id 未填写')
     collection = get.get_collection_list(collection_id,  0, limit_once)
     post_count = collection['collection']['postCount']
     blog_id = collection['collection']['blogId']
@@ -46,8 +50,12 @@ def read_index():
 if __name__ == '__main__':
     config = configparser.ConfigParser() 
     config.read('config.ini')
-    bind = config.get('Server', 'bind')
-    port = config.getint('Server', 'port')
-    threads = config.getint('Server', 'threads')
-    serve(Retrofter, host=bind, port=port, threads=threads)
+    if config.get('Main', 'Flask') == "no":
+       bind = config.get('Server', 'bind')
+       port = config.getint('Server', 'port')
+       serve(Retrofter, host=bind, port=port)
+    elif config.get('Main', 'Flask') == "yes":
+       bind = config.get('Flask_Server', 'Flask_bind')
+       port = config.getint('Flask_Server', 'Flask_port')
+       Retrofter.run(host=bind, port=port, debug=True)
     
